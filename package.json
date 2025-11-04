@@ -1,0 +1,15 @@
+{
+  "name": "queuectl",
+  "version": "1.0.0",
+  "description": "A CLI-based background job queue system which manages background jobs with worker processes, handle retries using exponential backoff, and maintain a Dead Letter Queue (DLQ) for permanently failed jobs",
+  "main": "/bin/queuectl.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "queuectl": "./bin/queuectl.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
