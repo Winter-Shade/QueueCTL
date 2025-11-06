@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { enqueueJob } from '../src/jobQueue.js';
+import { enqueueJob, listJobs } from '../src/jobQueue.js';
 
 const program = new Command();
 
@@ -24,6 +24,26 @@ program
     console.error("🔴 Failed to enqueue job:", err.message);
     }
 });
+
+// list command
+program
+    .command('list')
+    .description('List jobs by state')
+    .option('--state <state>', 'Filter by state (pending, processing, completed, failed, dead)')
+    .action(async (opts) => {
+      const jobs = await listJobs(opts.state);
+      if (!jobs.length) {
+        console.log('⏺️ No jobs found.');
+        return;
+      }
+
+      console.log(`Jobs${opts.state ? ` [state=${opts.state}]` : ''}:`);
+      for (const job of jobs) {
+        console.log(
+          `- ${job.id} | ${job.state} | command="${job.command}" | attempts=${job.attempts}`
+        );
+      }
+    });
 
 await program.parseAsync(process.argv);
 

@@ -20,3 +20,10 @@ export async function enqueueJob(jobInput) {
 
   return job;
 }
+
+export async function listJobs(state) {
+  const jobs = await loadJobs();
+  if (!state) return jobs; 
+  
+  return jobs.filter((job) => job.state === state);
+}
