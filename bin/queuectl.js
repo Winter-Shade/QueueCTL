@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { enqueueJob, listJobs } from '../src/jobQueue.js';
+import { enqueueJob, listJobs, getStatus } from '../src/jobQueue.js';
 import {startWorkers, stopWorkers} from '../src/worker.js'
 
 const program = new Command();
@@ -64,6 +64,20 @@ program
       await stopWorkers();
     });
 
+  // STATUS COMMAND
+  program
+    .command('status')
+    .description('Show summary of all job states & active workers')
+    .action(async () => {
+      const { summary, workerCount, workerPids } = await getStatus();
+
+      console.log('\n📊 Job Summary:');
+      console.table(summary);
+
+      console.log('👷 Active Workers:');
+      if (workerCount === 0) console.log('  No active workers');
+      else console.log(`  Count: ${workerCount} | PIDs: ${workerPids.join(', ')}`);
+    });
 
 await program.parseAsync(process.argv);
 
