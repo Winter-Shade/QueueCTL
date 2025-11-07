@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import { enqueueJob, listJobs } from '../src/jobQueue.js';
+import {startWorkers, stopWorkers} from '../src/worker.js'
 
 const program = new Command();
 
@@ -44,6 +45,25 @@ program
         );
       }
     });
+
+    // Worker Commands
+  const workerCmd = program.command('worker').description('Manage worker processes');
+
+  workerCmd
+    .command('start')
+    .option('--count <count>', 'Number of workers to start', '1')
+    .description('Start worker processes')
+    .action(async (opts) => {
+      await startWorkers(Number(opts.count));
+    });
+
+  workerCmd
+    .command('stop')
+    .description('Stop all running workers')
+    .action(async () => {
+      await stopWorkers();
+    });
+
 
 await program.parseAsync(process.argv);
 
