@@ -2,7 +2,8 @@
 
 import { Command } from 'commander';
 import { enqueueJob, listJobs, getStatus } from '../src/jobQueue.js';
-import {startWorkers, stopWorkers} from '../src/worker.js'
+import {startWorkers, stopWorkers} from '../src/worker.js';
+import { loadConfig, setConfigKey } from '../src/config.js';
 
 const program = new Command();
 
@@ -77,6 +78,31 @@ program
       console.log('👷 Active Workers:');
       if (workerCount === 0) console.log('  No active workers');
       else console.log(`  Count: ${workerCount} | PIDs: ${workerPids.join(', ')}`);
+    });
+
+  // config command
+  const configCmd = program.command('config').description('Manage queue configuration');
+
+  configCmd
+    .command('get')
+    .description('Show current configuration')
+    .action(async () => {
+      const cfg = await loadConfig();
+      console.table(cfg);
+    });
+
+  configCmd
+    .command('set')
+    .argument('<key>', 'Config key (e.g. base-delay, max-retries)')
+    .argument('<value>', 'New value')
+    .description('Update configuration value')
+    .action(async (key, value) => {
+      try {
+        const cfg = await setConfigKey(key, value);
+        console.log(`Updated config: ${key} = ${cfg[key]}`);
+      } catch (err) {
+        console.error(`${err.message}`);
+      }
     });
 
 await program.parseAsync(process.argv);
