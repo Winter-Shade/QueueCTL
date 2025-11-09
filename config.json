@@ -1,5 +1,0 @@
-{
-  "base_delay": 2,
-  "max_retries": 3,
-  "poll_interval": 2000
-}

@@ -141,3 +141,4 @@ vite.config.ts.timestamp-*
 jobs.json
 .worker_pids.json
 package-lock.json
+config.json
