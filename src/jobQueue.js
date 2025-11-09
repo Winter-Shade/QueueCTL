@@ -69,3 +69,23 @@ export async function getStatus() {
   return { summary, workerCount: workers.length, workerPids: workers };
 }
 
+export async function listDLQ() {
+  return await listJobs('dead');
+}
+
+export async function retryDeadJob(jobId) {
+  const jobs = await loadJobs();
+  const jobIndex = jobs.findIndex(j => j.id === jobId && j.state === 'dead');
+  if (jobIndex === -1) {
+    throw new Error(`Job ${jobId} not found in DLQ`);
+  }
+
+  const job = jobs[jobIndex];
+  job.state = 'pending';
+  job.attempts = 0;
+  job.next_run_at = null;
+  job.updated_at = new Date().toISOString();
+
+  await saveJobs(jobs);
+  return job;
+}

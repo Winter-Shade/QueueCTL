@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { enqueueJob, listJobs, getStatus } from '../src/jobQueue.js';
+import { enqueueJob, listJobs, getStatus, listDLQ, retryDeadJob } from '../src/jobQueue.js';
 import {startWorkers, stopWorkers} from '../src/worker.js';
 import { loadConfig, setConfigKey } from '../src/config.js';
 
@@ -104,6 +104,39 @@ program
         console.error(`${err.message}`);
       }
     });
+
+const dlqCmd = program.command('dlq').description('Manage Dead Letter Queue');
+
+dlqCmd
+  .command('list')
+  .description('List jobs in the Dead Letter Queue')
+  .action(async () => {
+    const deadJobs = await listDLQ();
+    if (!deadJobs.length) {
+      console.log('⏺️ No jobs in DLQ.');
+      return;
+    }
+
+    console.log('DLQ Jobs:');
+    for (const job of deadJobs) {
+      console.log(
+        `- ${job.id} | state=dead | command="${job.command}" | attempts=${job.attempts} | failed_at=${job.updated_at}`
+      );
+    }
+  });
+
+dlqCmd
+  .command('retry')
+  .argument('<jobId>', 'Job ID to retry from DLQ')
+  .description('Retry a job from the Dead Letter Queue')
+  .action(async (jobId) => {
+    try {
+      const job = await retryDeadJob(jobId);
+      console.log(`🔄 Retried job ${job.id} from DLQ`);
+    } catch (err) {
+      console.error(`🔴 ${err.message}`);
+    }
+  });
 
 await program.parseAsync(process.argv);
 
