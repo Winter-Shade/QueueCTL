@@ -242,4 +242,16 @@ Trade-off: Easy setup, but potential race conditions in high concurrency
 - **Retries**: Exponential backoff uses `Math.pow(base_delay, attempts)`. Global config applies if job lacks `max_retries`.
 - **Workers**: Forked for parallelism; no clustering. Idle workers poll every 2s (configurable).
 
+## Testing  
 
+A Bash script is provided to automate end-to-end validation of core flows (config management, enqueuing, listing, worker processing, retries/DLQ, and retrying).
+
+Make the script executable:
+```
+chmod +x tests/test.sh
+```
+
+Run via NPM (recommended, as configured in package.json):
+```
+npm test
+```
